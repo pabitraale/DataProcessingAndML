@@ -1,4 +1,5 @@
 import vtk
+<<<<<<< HEAD
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -14,3 +15,6 @@ plt.show()
 
 reader = vtk.vtkUnstructuredGridReader()
 reader.SetFileName()
+=======
+
+>>>>>>> 9d32b53eb0cd6644b40f57b174b9f815ae4a138f

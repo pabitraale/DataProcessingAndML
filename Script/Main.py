@@ -117,4 +117,10 @@ print(vtk_to_numpy(points_data_u))
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputData(grid)
 
+#Create the Actor
+actor = vtk.vtkActor()
+actor.GetProperty().SetRepresentationToWireframe()
+actor.SetMapper(mapper)
+
+
 

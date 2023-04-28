@@ -127,6 +127,8 @@ renderer = vtk.vtkRenderer()
 renderer.AddActor(actor)
 renderer.SetBackground(1,1,1) #set background to white
 
-
+#Create the RendererWindow
+renderer_window = vtk.vtkRenderWindow()
+renderer_window.AddRenderer(renderer)
 
 

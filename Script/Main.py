@@ -122,5 +122,11 @@ actor = vtk.vtkActor()
 actor.GetProperty().SetRepresentationToWireframe()
 actor.SetMapper(mapper)
 
+#Create the Renderer
+renderer = vtk.vtkRenderer()
+renderer.AddActor(actor)
+renderer.SetBackground(1,1,1) #set background to white
+
+
 
 

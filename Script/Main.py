@@ -2,6 +2,7 @@ import vtk
 import numpy as np
 import matplotlib.pyplot as plt
 from vtkmodules.util.numpy_support import vtk_to_numpy, numpy_to_vtk
+from vtkmodules.vtkCommonColor import vtkNamedColors
 
 
 #open file and read unstructured grid
@@ -113,22 +114,44 @@ points_data_u = point_data.GetArray('U')
 print("U 3 18 float")
 print(vtk_to_numpy(points_data_u))
 
+#get color form vtk
+color = vtk.vtkNamedColors()
+output_port = reader.GetOutputPort()
+scalar_range = grid.GetScalarRange()
+
 #create the mapper that corresponds the objects of the vtk file
 mapper = vtk.vtkDataSetMapper()
-mapper.SetInputData(grid)
+mapper.SetInputConnection(output_port)
+mapper.SetScalarRange(scalar_range)
 
 #Create the Actor
 actor = vtk.vtkActor()
-actor.GetProperty().SetRepresentationToWireframe()
 actor.SetMapper(mapper)
+actor.GetProperty().SetRepresentationToWireframe()
+actor.GetProperty().SetCoatColor(0.2,0.63,0.79)
+actor.GetProperty().SetDiffuse(0.7)
+actor.GetProperty().SetSpecular(0.4)
+actor.GetProperty().SetSpecularPower(20)
+
+
 
 #Create the Renderer
 renderer = vtk.vtkRenderer()
 renderer.AddActor(actor)
-renderer.SetBackground(1,1,1) #set background to white
+renderer.SetBackground(color.GetColor3d('pink'))
+#renderer.SetLayer(0)
+
 
 #Create the RendererWindow
 renderer_window = vtk.vtkRenderWindow()
 renderer_window.AddRenderer(renderer)
+
+#Create the renderWindow interactor and siaplay the vtk file
+interactor = vtk.vtkRenderWindowInteractor()
+interactor.SetRenderWindow(renderer_window)
+interactor.Initialize()
+interactor.Render()
+interactor.Start()
+
 
 

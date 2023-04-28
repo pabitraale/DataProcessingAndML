@@ -6,7 +6,7 @@ from vtkmodules.util.numpy_support import vtk_to_numpy, numpy_to_vtk
 
 #open file and read unstructured grid
 reader = vtk.vtkUnstructuredGridReader()
-reader.SetFileName("Data\cavity-coarse_100.vtk")
+reader.SetFileName("DataProcessingAndML\Data\cavity-coarse_100.vtk")
 reader.Update()
 grid = reader.GetOutput()
 
@@ -21,6 +21,11 @@ xyz3d = vtk_to_numpy(vtk_points.GetData())
 print("number of points: ", grid.GetNumberOfPoints())
 print('POINTS  %s  float'% (grid.GetNumberOfPoints()))
 print(xyz3d)
+print(xyz3d.shape)
+print(type(xyz3d))
+x = xyz3d[:, 0]
+print(x)
+print(x.shape)
 '''i = 0
 while(i < grid.GetNumberOfPoints()):
     print("Next point: %d, %s " % (i+1, grid.GetPoint(i)))
@@ -107,4 +112,9 @@ print('\n')
 points_data_u = point_data.GetArray('U')
 print("U 3 18 float")
 print(vtk_to_numpy(points_data_u))
+
+#create the mapper that corresponds the objects of the vtk file
+mapper = vtk.vtkDataSetMapper()
+mapper.SetInputData(grid)
+
 

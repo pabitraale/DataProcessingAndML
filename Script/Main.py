@@ -119,6 +119,18 @@ color = vtk.vtkNamedColors()
 output_port = reader.GetOutputPort()
 scalar_range = grid.GetScalarRange()
 
+#get centroid of cell
+cellCentersFilter = vtk.vtkCellCenters()
+cellCentersFilter.SetInputData(grid)
+cellCentersFilter.VertexCellsOn()
+cellCentersFilter.Update()
+
+print("cell center: ", cellCentersFilter.GetOutput().GetNumberOfPoints())
+numberOfCenterInCells = cellCentersFilter.GetOutput().GetNumberOfPoints()
+
+for i in range(0, numberOfCenterInCells ):
+    print("points: ", cellCentersFilter.GetOutput().GetPoint(i))
+
 #create the mapper that corresponds the objects of the vtk file
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(output_port)
@@ -127,24 +139,23 @@ mapper.SetScalarRange(scalar_range)
 #Create the Actor
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
-actor.GetProperty().SetRepresentationToWireframe()
-actor.GetProperty().SetCoatColor(0.2,0.63,0.79)
-actor.GetProperty().SetDiffuse(0.7)
-actor.GetProperty().SetSpecular(0.4)
-actor.GetProperty().SetSpecularPower(20)
+#actor.GetProperty().SetRepresentationToWireframe()
+actor.GetProperty().SetColor(color.GetColor3d('tomato'))
+actor.GetProperty().EdgeVisibilityOn()
 
 
 
 #Create the Renderer
 renderer = vtk.vtkRenderer()
 renderer.AddActor(actor)
-renderer.SetBackground(color.GetColor3d('pink'))
+renderer.SetBackground(color.GetColor3d('black'))
 #renderer.SetLayer(0)
 
 
 #Create the RendererWindow
 renderer_window = vtk.vtkRenderWindow()
 renderer_window.AddRenderer(renderer)
+renderer_window.SetSize(500, 500)
 
 #Create the renderWindow interactor and siaplay the vtk file
 interactor = vtk.vtkRenderWindowInteractor()

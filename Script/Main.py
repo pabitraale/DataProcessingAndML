@@ -128,8 +128,22 @@ cellCentersFilter.Update()
 print("cell center: ", cellCentersFilter.GetOutput().GetNumberOfPoints())
 numberOfCenterInCells = cellCentersFilter.GetOutput().GetNumberOfPoints()
 
+centroid = []
 for i in range(0, numberOfCenterInCells ):
     print("points: ", cellCentersFilter.GetOutput().GetPoint(i))
+    centroid.append(cellCentersFilter.GetOutput().GetPoint(i))
+
+centroidArr = np.array(centroid)
+print("centroid: ", centroidArr)
+print(centroidArr.shape)
+
+#Display cell centers
+centerMapper = vtk.vtkDataSetMapper()
+centerMapper.SetInputConnection(cellCentersFilter.GetOutputPort())
+centerActor = vtk.vtkActor()
+centerActor.SetMapper(centerMapper)
+centerActor.GetProperty().SetPointSize(10)
+centerActor.GetProperty().SetColor(color.GetColor3d('White'))
 
 #create the mapper that corresponds the objects of the vtk file
 mapper = vtk.vtkDataSetMapper()
@@ -139,7 +153,7 @@ mapper.SetScalarRange(scalar_range)
 #Create the Actor
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
-#actor.GetProperty().SetRepresentationToWireframe()
+actor.GetProperty().SetRepresentationToWireframe()
 actor.GetProperty().SetColor(color.GetColor3d('tomato'))
 actor.GetProperty().EdgeVisibilityOn()
 
@@ -148,7 +162,9 @@ actor.GetProperty().EdgeVisibilityOn()
 #Create the Renderer
 renderer = vtk.vtkRenderer()
 renderer.AddActor(actor)
-renderer.SetBackground(color.GetColor3d('black'))
+renderer.AddActor(centerActor)
+renderer.SetBackground(color.GetColor3d('Black'))
+renderer.ResetCamera()
 #renderer.SetLayer(0)
 
 
@@ -156,6 +172,7 @@ renderer.SetBackground(color.GetColor3d('black'))
 renderer_window = vtk.vtkRenderWindow()
 renderer_window.AddRenderer(renderer)
 renderer_window.SetSize(500, 500)
+renderer_window.SetWindowName("CellCenters")
 
 #Create the renderWindow interactor and siaplay the vtk file
 interactor = vtk.vtkRenderWindowInteractor()

@@ -10,6 +10,12 @@ reader = vtk.vtkUnstructuredGridReader()
 reader.SetFileName("DataProcessingAndML\Data\cavity-coarse_100.vtk")
 reader.Update()
 grid = reader.GetOutput()
+#print("vtk unStructured gird :")
+print(reader.GetOutput())
+#print("vtk Algorithm output:")
+print(reader.GetOutputPort())
+
+
 
 #get number of cells
 numberOfCellsInGrid = grid.GetNumberOfCells()
@@ -121,7 +127,7 @@ scalar_range = grid.GetScalarRange()
 
 
 #get centroid of cell
-cellCentersFilter = vtk.vtkCellCenters()
+'''cellCentersFilter = vtk.vtkCellCenters()
 cellCentersFilter.SetInputData(grid)
 cellCentersFilter.VertexCellsOn()
 cellCentersFilter.Update()
@@ -145,12 +151,12 @@ centerMapper.SetInputConnection(cellCentersFilter.GetOutputPort())
 centerActor = vtk.vtkActor()
 centerActor.SetMapper(centerMapper)
 centerActor.GetProperty().SetPointSize(10)
-centerActor.GetProperty().SetColor(color.GetColor3d('White'))
+centerActor.GetProperty().SetColor(color.GetColor3d('White'))'''
 
 
 
 #create the mapper that corresponds the objects of the vtk file
-mapper = vtk.vtkDataSetMapper()
+'''mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(output_port)
 mapper.SetScalarRange(scalar_range)
 
@@ -159,12 +165,17 @@ actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetRepresentationToWireframe() 
 #actor.GetProperty().SetColor(color.GetColor3d('tomato'))
-actor.GetProperty().EdgeVisibilityOn()
+actor.GetProperty().EdgeVisibilityOn()'''
+
 
 #contour filter
-contour = vtk.vtkContourFilter()
+contour = vtk.vtkContourGrid()
 contour.SetInputConnection(output_port)
-contour.GenerateValues(5,0, 1)
+
+getDataArray = grid.GetPointsData().GetArray(0) # getting points data p
+scalarRange = getDataArray.GetValueRange()
+contour.GenerateValues(10, scalarRange[0], scalarRange[1])
+contour.Update()
 
 
 #coutour mapper
@@ -175,6 +186,7 @@ contourMapper.SetScalarRange(reader.GetOutput().GetScalarRange())
 #create contourActor
 contourActor = vtk.vtkActor()
 contourActor.SetMapper(contourMapper)
+contourActor.GetProperty().SetRepresentationToWireframe() 
 #create outline
 outline = vtk.vtkOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
@@ -189,11 +201,11 @@ outlineActor.GetProperty().SetLineWidth(3.0)
 
 #Create the Renderer
 renderer = vtk.vtkRenderer()
-renderer.AddActor(actor)
-renderer.AddActor(centerActor) #add center actor
+#renderer.AddActor(actor)
+#renderer.AddActor(centerActor) #add center actor
 renderer.AddActor(contourActor) # add contour actor
 renderer.AddActor(outlineActor)
-renderer.SetBackground(color.GetColor3d('black'))
+renderer.SetBackground(color.GetColor3d('white'))
 renderer.ResetCamera()
 renderer.GetActiveCamera().Azimuth(30)
 renderer.GetActiveCamera().Elevation(30)

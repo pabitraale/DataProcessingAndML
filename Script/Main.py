@@ -214,6 +214,12 @@ contourMapper.SetScalarRange(scalar_range)
 contourMapper.SetLookupTable(lut)
 contourMapper.SetInterpolateScalarsBeforeMapping(1)
 
+#set scalar bar
+scalar_bar = vtk.vtkScalarBarActor()
+scalar_bar.SetOrientationToHorizontal()
+scalar_bar.SetLookupTable(lut)
+
+
 
 #Create the Renderer
 renderer = vtk.vtkRenderer()

@@ -22,7 +22,6 @@ def plot_fields(X,Y,vals,figname,dirname='',vmin=None,vmax=None,fig_resolution=2
         plt.contourf(X,Y,vals,cmap='jet')
     plt.xlabel('x')
     plt.ylabel('y')
-    fig.savefig(dirname+figname,dpi=fig_resoluion)
-
+    fig.savefig(dirname+figname,dpi=fig_resolution)
     return
 

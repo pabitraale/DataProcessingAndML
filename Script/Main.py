@@ -219,6 +219,10 @@ scalar_bar = vtk.vtkScalarBarActor()
 scalar_bar.SetOrientationToHorizontal()
 scalar_bar.SetLookupTable(lut)
 
+#create grid actor
+contourActor = vtk.vtkActor()
+contourActor.SetMapper(contourMapper)
+contourActor.GetProperty().EdgeVisibilityOff()
 
 
 #Create the Renderer

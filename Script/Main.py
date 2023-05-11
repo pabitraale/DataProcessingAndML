@@ -33,6 +33,11 @@ print(type(xyz3d))
 x = xyz3d[:, 0]
 print(x)
 print(x.shape)
+
+#get color form vtk
+color = vtk.vtkNamedColors()
+output_port = reader.GetOutputPort()
+scalar_range = grid.GetScalarRange()
 '''i = 0
 while(i < grid.GetNumberOfPoints()):
     print("Next point: %d, %s " % (i+1, grid.GetPoint(i)))
@@ -120,10 +125,7 @@ points_data_u = point_data.GetArray('U')
 print("U 3 18 float")
 print(vtk_to_numpy(points_data_u))
 
-#get color form vtk
-color = vtk.vtkNamedColors()
-output_port = reader.GetOutputPort()
-scalar_range = grid.GetScalarRange()
+
 
 
 #get centroid of cell
@@ -172,23 +174,19 @@ actor.GetProperty().EdgeVisibilityOn()'''
 contour = vtk.vtkContourGrid()
 contour.SetInputConnection(output_port)
 
-getDataArray = grid.GetPointsData().GetArray(0) # getting points data p
+#store different data from cell data or point data
+getDataArray = grid.GetPointData().GetArray(0) # getting points data p
+
+#get min value  and max value
 scalarRange = getDataArray.GetValueRange()
+
+#generate 10 value between min value and max value
 contour.GenerateValues(10, scalarRange[0], scalarRange[1])
 contour.Update()
 
 
-#coutour mapper
-contourMapper = vtk.vtkDataSetMapper()
-contourMapper.SetInputConnection(contour.GetOutputPort())
-contourMapper.SetScalarRange(reader.GetOutput().GetScalarRange())
-
-#create contourActor
-contourActor = vtk.vtkActor()
-contourActor.SetMapper(contourMapper)
-contourActor.GetProperty().SetRepresentationToWireframe() 
 #create outline
-outline = vtk.vtkOutlineFilter()
+'''outline = vtk.vtkOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
 
 outlineMapper = vtk.vtkDataSetMapper()
@@ -197,14 +195,32 @@ outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.GetProperty().SetColor(color.GetColor3d("Red"))
-outlineActor.GetProperty().SetLineWidth(3.0)
+outlineActor.GetProperty().SetLineWidth(3.0)'''
+
+#creat look up table and set number in grid 
+lut = vtk.vtkLookupTable()
+lut.SetNumberOfColors(5)
+lut.SetHueRange(0.655, 0.0)
+lut.Build()
+
+contourMapper = vtk.vtkDataSetMapper()
+contourMapper.SetInputConnection(output_port)
+#contourMapper.GetInput().GetPointData().SetActiveScalars('p') # for data point p
+#contourMapper.GetInput().GetPointData().SetActiveScalars('U') # for data point vector U
+contourMapper.GetInput().GetCellData().SetActiveScalars('p')  # for cell data p
+#contourMapper.GetInput().GetCellData().SetActiveScalars('U') # for cell data vector U
+contourMapper.ScalarVisibilityOn()
+contourMapper.SetScalarRange(scalar_range)
+contourMapper.SetLookupTable(lut)
+contourMapper.SetInterpolateScalarsBeforeMapping(1)
+
 
 #Create the Renderer
 renderer = vtk.vtkRenderer()
 #renderer.AddActor(actor)
 #renderer.AddActor(centerActor) #add center actor
-renderer.AddActor(contourActor) # add contour actor
-renderer.AddActor(outlineActor)
+#renderer.AddActor(contourActor) # add contour actor
+#renderer.AddActor(outlineActor)
 renderer.SetBackground(color.GetColor3d('white'))
 renderer.ResetCamera()
 renderer.GetActiveCamera().Azimuth(30)
@@ -216,7 +232,7 @@ renderer.GetActiveCamera().Elevation(30)
 renderer_window = vtk.vtkRenderWindow()
 renderer_window.AddRenderer(renderer)
 renderer_window.SetSize(500, 500)
-renderer_window.SetWindowName("CellCenters")
+renderer_window.SetWindowName("contour")
 
 #Create the renderWindow interactor and siaplay the vtk file
 interactor = vtk.vtkRenderWindowInteractor()

@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonColor import vtkNamedColors
 
 #open file and read unstructured grid
 reader = vtk.vtkUnstructuredGridReader()
-reader.SetFileName("DataProcessingAndML\Data\cavity-coarse_100.vtk")
+reader.SetFileName("DataProcessingAndML\Data\cavity_100[9331].vtk")
 reader.Update()
 grid = reader.GetOutput()
 #print(reader.GetOutput()) #this print vtk unStructured grid
@@ -101,23 +101,22 @@ print("\nU 3 18 float")
 print(vtk_to_numpy(points_data_u))
 
 #get centroid of cell
-'''cellCentersFilter = vtk.vtkCellCenters()
+cellCentersFilter = vtk.vtkCellCenters()
 cellCentersFilter.SetInputData(grid)
 cellCentersFilter.VertexCellsOn()
 cellCentersFilter.Update()
 
-print("cell center: ", cellCentersFilter.GetOutput().GetNumberOfPoints())
+print("\ncell center: ", cellCentersFilter.GetOutput().GetNumberOfPoints())
 numberOfCenterInCells = cellCentersFilter.GetOutput().GetNumberOfPoints()
 
 centroid = []
 for i in range(0, numberOfCenterInCells ):
-    #print("points: ", cellCentersFilter.GetOutput().GetPoint(i))
-    centroid.append(cellCentersFilter.GetOutput().GetPoint(i))
+    centroid.append(cellCentersFilter.GetOutput().GetPoint(i)) #getting the centroid from each cell
 
 centroidArr = np.array(centroid)
 print("----cell centroids----")
 print( centroidArr)
-print(centroidArr.shape)
+
 
 #Display cell centers
 centerMapper = vtk.vtkDataSetMapper()
@@ -125,11 +124,12 @@ centerMapper.SetInputConnection(cellCentersFilter.GetOutputPort())
 centerActor = vtk.vtkActor()
 centerActor.SetMapper(centerMapper)
 centerActor.GetProperty().SetPointSize(10)
-centerActor.GetProperty().SetColor(color.GetColor3d('White'))'''
+centerActor.GetProperty().SetColor(color.GetColor3d('White'))
 
 
 
 #create the mapper that corresponds the objects of the vtk file
+# This creates grid
 '''mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(output_port)
 mapper.SetScalarRange(scalar_range)
@@ -147,7 +147,10 @@ contour = vtk.vtkContourGrid()
 contour.SetInputConnection(output_port)
 
 #store different data from cell data or point data
-getDataArray = grid.GetPointData().GetArray(0) # getting points data p
+#getDataArray = grid.GetPointData().GetArray(0) # getting points data p
+#getDataArray = grid.GetPointData().GetArray(1) # getting points data vector U
+getDataArray = grid.GetCellData().GetArray(1) # getting cell data p
+#getDataArray = grid.GetCellData().GetArray(2) # getting cell data vector U
 
 #get min value  and max value
 scalarRange = getDataArray.GetValueRange()
@@ -164,9 +167,9 @@ lut.Build()
 
 contourMapper = vtk.vtkDataSetMapper()
 contourMapper.SetInputConnection(output_port)
-contourMapper.GetInput().GetPointData().SetActiveScalars('p') # for data point p
+#contourMapper.GetInput().GetPointData().SetActiveScalars('p') # for data point p
 #contourMapper.GetInput().GetPointData().SetActiveScalars('U') # for data point vector U
-#contourMapper.GetInput().GetCellData().SetActiveScalars('p')  # for cell data p
+contourMapper.GetInput().GetCellData().SetActiveScalars('p')  # for cell data p
 #contourMapper.GetInput().GetCellData().SetActiveScalars('U') # for cell data vector U
 contourMapper.ScalarVisibilityOn()
 contourMapper.SetScalarRange(scalarRange)
@@ -190,7 +193,7 @@ renderer =contextView.GetRenderer()
 renderer.AddActor(contourActor)
 #renderer.AddActor(actor)
 #renderer.AddActor(centerActor) #add center actor
-renderer.SetBackground(color.GetColor3d('white'))
+renderer.SetBackground(color.GetColor3d('indigo'))
 
 #Create the RendererWindow
 renderer_window = vtk.vtkRenderWindow()

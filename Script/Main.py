@@ -118,6 +118,7 @@ print("----cell centroids----")
 print( centroidArr)
 
 
+
 #Display cell centers
 centerMapper = vtk.vtkDataSetMapper()
 centerMapper.SetInputConnection(cellCentersFilter.GetOutputPort())

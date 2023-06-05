@@ -6,10 +6,10 @@ from vtkmodules.vtkCommonColor import vtkNamedColors
 
 #open file and read unstructured grid
 reader = vtk.vtkUnstructuredGridReader()
-reader.SetFileName("DataProcessingAndML\Data\cavity_100[9331].vtk")
+reader.SetFileName("DataProcessingAndML\Data\cavity-coarse_100.vtk")
 reader.Update()
 grid = reader.GetOutput()
-#print(reader.GetOutput()) #this print vtk unStructured grid
+#print(reader.GetOutput()) #this print vtk unStructured grid6
 #print(reader.GetOutputPort()) # this print vtk Algorithm output
 
 #get number of cells
@@ -23,6 +23,7 @@ xyz3d = vtk_to_numpy(vtk_points.GetData())
 print("number of points: ", grid.GetNumberOfPoints())
 print('POINTS  %s  float'% (grid.GetNumberOfPoints()))
 print(xyz3d)
+print("x value: ", xyz3d[:, 0])
 
 
 #get color form vtk
@@ -89,6 +90,8 @@ print(vtk_to_numpy(cell_data_p))
 print("\nU 3 4 float")
 cell_data_u = cell_data.GetArray('U')
 print(vtk_to_numpy(cell_data_u))
+
+
 #point data
 print("\nprinting point data")
 point_data = grid.GetPointData()
@@ -116,6 +119,7 @@ for i in range(0, numberOfCenterInCells ):
 centroidArr = np.array(centroid)
 print("----cell centroids----")
 print( centroidArr)
+print("centroid x: ", centroidArr[:, 0])
 
 
 
@@ -149,9 +153,39 @@ contour.SetInputConnection(output_port)
 
 #store different data from cell data or point data
 #getDataArray = grid.GetPointData().GetArray(0) # getting points data p
-#getDataArray = grid.GetPointData().GetArray(1) # getting points data vector U
-getDataArray = grid.GetCellData().GetArray(1) # getting cell data p
+getDataArray = grid.GetPointData().GetArray(1) # getting points data vector U
+
+getXMinMax = grid.GetPointData().GetArray(1).GetRange(0) #get min and max value of x
+print("x min and max : ", getXMinMax)
+
+
+
+
+'''getDataPointX = vtk_to_numpy(getDataArray)[:, 0]
+print("x: ", getDataPointX)
+print("length of x: ", getDataPointX.shape)
+
+getDataPointY = vtk_to_numpy(getDataArray)[:, 1]
+print("y: ", getDataPointY)
+print("length of y: ", getDataPointY.shape)
+
+getDataPointZ = vtk_to_numpy(getDataArray)[:, 2]
+print("Z: ", getDataPointZ)
+print("length of Z: ", getDataPointZ.shape)'''
+
+
+#getDataArray = grid.GetCellData().GetArray(1) # getting cell data p
 #getDataArray = grid.GetCellData().GetArray(2) # getting cell data vector U
+'''print("getData Arrya cell: ", vtk_to_numpy(getDataArray))
+getCellDataX = vtk_to_numpy(getDataArray)[:, 0] # x coordinate of U data vector
+print("cell data x: ", getCellDataX)
+print("cell data shape: ", getCellDataX.shape)
+getCellDataY = vtk_to_numpy(getDataArray)[:, 1] # x coordinate of U data vector
+print("cell data x: ", getCellDataY)
+print("cell data shape: ", getCellDataY.shape)
+getCellDataZ = vtk_to_numpy(getDataArray)[:, 2] # x coordinate of U data vector
+print("cell data x: ", getCellDataZ)
+print("cell data shape: ", getCellDataZ.shape)'''
 
 #get min value  and max value
 scalarRange = getDataArray.GetValueRange()
@@ -162,7 +196,7 @@ contour.Update()
 
 #creat look up table and set number in grid 
 lut = vtk.vtkLookupTable()
-lut.SetNumberOfColors(40)
+lut.SetNumberOfColors(100)
 lut.SetHueRange(0.655, 0.0)
 lut.Build()
 
@@ -170,8 +204,10 @@ contourMapper = vtk.vtkDataSetMapper()
 contourMapper.SetInputConnection(output_port)
 #contourMapper.GetInput().GetPointData().SetActiveScalars('p') # for data point p
 #contourMapper.GetInput().GetPointData().SetActiveScalars('U') # for data point vector U
-contourMapper.GetInput().GetCellData().SetActiveScalars('p')  # for cell data p
+#contourMapper.GetInput().GetCellData().SetActiveScalars('p')  # for cell data p
 #contourMapper.GetInput().GetCellData().SetActiveScalars('U') # for cell data vector U
+
+
 contourMapper.ScalarVisibilityOn()
 contourMapper.SetScalarRange(scalarRange)
 contourMapper.SetLookupTable(lut)

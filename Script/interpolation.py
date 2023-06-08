@@ -8,6 +8,9 @@ from vtkmodules.vtkCommonColor import vtkNamedColors
 from mayavi import mlab
 from scipy import interpolate
 from matplotlib import cm
+from scipy import signal
+import savitzky_golay_filter
+from mpl_toolkits.mplot3d import Axes3D
 
 
 #open file and read unstructured grid
@@ -83,6 +86,13 @@ Xcell = cell_X.reshape(row,col)
 Ycell = cell_Y.reshape(row,col)
 Zcell = cell_Z.reshape(row,col)
 
+#reshape noise data
+noiseP = noise_p.reshape(row, col)
+noiseX = noise_X.reshape(row, col)
+noiseY = noise_Y.reshape(row, col)
+noiseZ = noise_Z.reshape(row, col)
+
+
 #plot figures
 def plot_fig(x, y, data):
     z = data.reshape(row,col)
@@ -115,7 +125,7 @@ def smooth_interpolate(cenX, cenY, values, numberOfPoints):
     centDataY = np.arange(min(centY_data),  max(centY_data), step)
 
     newX, newY = np.meshgrid(centDataX, centDataY)
-    dataP = interpolate.bisplrep(centY, centX, values, s=0)
+    dataP = interpolate.bisplrep(centY, centX, values, s = 1)
     newP =  interpolate.bisplev(centDataX, centDataY, dataP)
 
     plt.figure()
@@ -137,9 +147,15 @@ def smooth_interpolate(cenX, cenY, values, numberOfPoints):
     surf = ax.plot_surface(newX, newY, newP, cmap=cm.cool)
     plt.show()
 
-
+#smoothing data using interpolation 
 totalDataPoints = 40
 smooth_interpolate(centX, centY, p, totalDataPoints)
 smooth_interpolate(centX, centY, Xcell, totalDataPoints)
 smooth_interpolate(centX, centY, Ycell, totalDataPoints)
 smooth_interpolate(centX, centY, Zcell, totalDataPoints)
+
+#savitzky noise smoothing filter
+savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseP, p)
+savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseX, Xcell)
+savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseY, Ycell)
+savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseZ, Zcell)

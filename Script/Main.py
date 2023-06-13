@@ -6,7 +6,8 @@ from vtkmodules.vtkCommonColor import vtkNamedColors
 
 #open file and read unstructured grid
 reader = vtk.vtkUnstructuredGridReader()
-reader.SetFileName("DataProcessingAndML\Data\cavity_100[9331].vtk")
+#reader.SetFileName("DataProcessingAndML\Data\cavity_100[9331].vtk")
+reader.SetFileName("../Data/cavity_100[9331].vtk")
 reader.Update()
 grid = reader.GetOutput()
 #print(reader.GetOutput()) #this print vtk unStructured grid

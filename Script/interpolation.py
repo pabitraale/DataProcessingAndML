@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from vtkmodules.util.numpy_support import vtk_to_numpy, numpy_to_vtk
 from vtkmodules.vtkCommonColor import vtkNamedColors
-from mayavi import mlab
+#from mayavi import mlab
 from scipy import interpolate
 from matplotlib import cm
 from scipy import signal

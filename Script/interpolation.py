@@ -17,6 +17,7 @@ from mpl_toolkits.mplot3d import Axes3D
 reader = vtk.vtkDataSetReader()
 #reader.SetFileName("DataProcessingAndML\Data\cavity-coarse_100.vtk")
 reader.SetFileName("DataProcessingAndML\Data\cavity_100[9331].vtk")
+#reader.SetFileName("../Data/cavity_100[9331].vtk")
 reader.ReadAllVectorsOn()
 reader.ReadAllColorScalarsOn()
 reader.Update()
@@ -94,7 +95,7 @@ noiseZ = noise_Z.reshape(row, col)
 
 
 #plot figures
-def plot_fig(x, y, data):
+def plot_fig(x, y, data, plotdir='../Data/',figname=''):
     z = data.reshape(row,col)
     fig, ax= plt.subplots(1,1)
     cp = ax.contourf(x,y, z)
@@ -103,6 +104,7 @@ def plot_fig(x, y, data):
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     plt.show()
+    #fig.savefig(plotdir+figname+'.png',dpi=200)
 
 #plot figure for cell p value
 plot_fig(centX, centY, Cell_data_p)
@@ -110,12 +112,12 @@ plot_fig(centX, centY, cell_X)
 plot_fig(centX, centY, cell_Y)
 plot_fig(centX, centY, cell_Z)
 #plot figure for noise data p
-plot_fig(centX, centY, noise_p)
-plot_fig(centX, centY, noise_X)
-plot_fig(centX, centY, noise_Y)
-plot_fig(centX, centY, noise_Z)
+plot_fig(centX, centY, noise_p, figname='p_w_noise')
+plot_fig(centX, centY, noise_X, figname='ux_w_noise')
+plot_fig(centX, centY, noise_Y, figname='uy_w_noise')
+plot_fig(centX, centY, noise_Z, figname='uz_w_noise')
 
-def smooth_interpolate(cenX, cenY, values, numberOfPoints):
+def smooth_interpolate(cenX, cenY, values, numberOfPoints, plotdir='../Data/',figname='sample'):
     centX_data = cenX[0, :]
     centY_data = cenY[:, 0]
 
@@ -125,37 +127,65 @@ def smooth_interpolate(cenX, cenY, values, numberOfPoints):
     centDataY = np.arange(min(centY_data),  max(centY_data), step)
 
     newX, newY = np.meshgrid(centDataX, centDataY)
-    dataP = interpolate.bisplrep(centY, centX, values, s = 1)
+    dataP = interpolate.bisplrep(cenY, cenX, values, s = 1)
     newP =  interpolate.bisplev(centDataX, centDataY, dataP)
+    return newX, newY, newP
 
-    plt.figure()
+    # EDIT: Return the filtered data or interpolator from the function and do the plotting outside of the function. Do the plotting using plot_fig function.
+
+def plt_fig_interpolate(newX, newY, newP, cenX, cenY, values, plotdir='../Data/',figname=''):
+    fig = plt.figure()
     #lims = dict(cmap='RdBu_r', vmin = min(centX_data), vmax=max(centX_data))
     plt.pcolormesh(newX, newY, newP)
     plt.colorbar()
     plt.title("Interpolated function")
     plt.show()
+    #fig.savefig(plotdir+figname+'_filtered'+'.png',dpi=200)
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    surf = ax.plot_surface(centX, centY, values, cmap=cm.cool)
+    ax.set_title('without filter')
+    surf = ax.plot_surface(cenX, cenY, values, cmap=cm.cool)
     plt.show()
+    #fig.savefig(plotdir+figname+'_surf_data.png',dpi=200)
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.set_xlabel('x')
     ax.set_ylabel('y')
+    ax.set_title('filtered')
     surf = ax.plot_surface(newX, newY, newP, cmap=cm.cool)
     plt.show()
+    #fig.savefig(plotdir+figname+'_surf_filtered'+'.png',dpi=200)
 
 #smoothing data using interpolation 
-totalDataPoints = 40
-smooth_interpolate(centX, centY, p, totalDataPoints)
-smooth_interpolate(centX, centY, Xcell, totalDataPoints)
-smooth_interpolate(centX, centY, Ycell, totalDataPoints)
-smooth_interpolate(centX, centY, Zcell, totalDataPoints)
+totalDataPoints = 100
+
+interplote_data_p = smooth_interpolate(centX, centY, p, totalDataPoints, figname='p')
+plt_fig_interpolate(interplote_data_p[0], interplote_data_p[1], interplote_data_p[2], centX, centY, p)
+
+interplote_data_x = smooth_interpolate(centX, centY, Xcell, totalDataPoints, figname='ux')
+plt_fig_interpolate(interplote_data_x[0], interplote_data_x[1], interplote_data_x[2], centX, centY, Xcell)
+
+interplote_data_y = smooth_interpolate(centX, centY, Ycell, totalDataPoints, figname='uy')
+plt_fig_interpolate(interplote_data_y[0], interplote_data_y[1], interplote_data_y[2], centX, centY, Ycell)
+
+interplote_data_z = smooth_interpolate(centX, centY, Zcell, totalDataPoints, figname='uz')
+plt_fig_interpolate(interplote_data_z[0], interplote_data_z[1], interplote_data_z[2], centX, centY, Zcell)
 
 #savitzky noise smoothing filter
-savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseP, p)
-savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseX, Xcell)
-savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseY, Ycell)
-savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseZ, Zcell)
+
+filtered_data_p = savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseP, p)
+savitzky_golay_filter.plt_fig_savitzky(centX, centY, filtered_data_p, p)
+
+filtered_data_X = savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseX, Xcell)
+savitzky_golay_filter.plt_fig_savitzky(centX, centY,filtered_data_X, Xcell)
+
+filtered_data_Y = savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseY, Ycell)
+savitzky_golay_filter.plt_fig_savitzky(centX, centY,filtered_data_Y, Ycell)
+
+filtered_data_Z = savitzky_golay_filter.savitzky_filter_smooth(centX, centY,noiseZ, Zcell)
+savitzky_golay_filter.plt_fig_savitzky(centX, centY,filtered_data_Z, Zcell)
+
+# EDIT: Make plots of the savitzky-golay filtred data. Save figures using different file names.
+
